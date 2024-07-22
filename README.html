@@ -39,3 +39,30 @@
 ### process_particle_distribution
 ```matlab
 [inputs, microstructure3D] = process_particle_distribution(csv_filepath, inputs_filepath, voxel_size, savefolder, save_progression, save_verification, maxtime, refresheachs, domain_size, volumefraction_along_3rd_axis, run_number);
+
+Processes the particle distribution based on input parameters. Returns the processed inputs and the initial 3D microstructure.
+
+generate_additive
+matlab
+Copy code
+microstructure_bridge = generate_additive(microstructure_phase, background_id, additive_id, target_volume_fraction, minimum_dist, randomize_level, erosiondilatation_depth);
+Generates an additive phase in the microstructure. Returns the modified microstructure with the additive phase.
+
+join_phases
+matlab
+Copy code
+microstructure_jointed = join_phases(microstructure);
+Joins different phases in the microstructure. Returns the jointed microstructure.
+
+Citation
+This project utilizes the MATBOX Microstructure Analysis Toolbox developed by NREL. Please cite MATBOX in your work as follows:
+
+MATBOX Microstructure Analysis Toolbox. (2021). National Renewable Energy Laboratory. Available at: https://github.com/NREL/MATBOX_Microstructure_analysis_toolbox
+
+Authors
+Gabriel Wosiak Leite
+Jacob Wrubel
+Puvikkarasan Jayapragasam
+
+License
+This project is licensed under the ...
