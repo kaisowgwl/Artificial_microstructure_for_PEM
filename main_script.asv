@@ -1,19 +1,20 @@
 %% Define file paths and parameters
-csv_filepath = 'C:\Users\gwosiak\Documents\MATLAB\Artificial Microstructures for PEM\input examples\size_distribution.csv';
-inputs_filepath = 'C:\Users\gwosiak\Documents\MATLAB\Artificial Microstructures for PEM\input examples\Inputs.mat';
+csv_filepath = 'C:\Users\gwosiak\Documents\MATLAB\Artificial Microstructures for PEM\input examples\size_distribution.csv'; % input file for particle size distribution
+inputs_filepath = 'C:\Users\gwosiak\Documents\MATLAB\Artificial Microstructures for PEM\input examples\Inputs.mat'; % Initial disconnected particles input file from MATBOX
 
 voxel_size = 10; % nm
-savefolder = 'C:\Users\gwosiak\Documents\Matbox_test\test 5\';
-save_progression = true;
-save_verification = true;
-maxtime = 999999;
-refresheachs = 20;
+savefolder = 'C:\Users\gwosiak\Documents\Matbox_test\test 5\'; 
 domain_size = [200, 200, 150]; % W x L x H in voxels
-catalyst_tot_vol_fraction = 0.11;
-bridge_fraction = 0.5;
-run_number = 1;
+catalyst_tot_vol_fraction = 0.11; % From ink composition
+bridge_fraction = 0.5; % (values from 0 to 1) Ajusts essentially the bridge volume fraction of the catalyst phase, higher value means higher connectivity 
 ionomer_volume_fraction = 0.15; % Target ionomer volume fraction
 
+save_progression = true;
+save_verification = true;
+maxtime = 999999; 
+refresheachs = 20;
+
+%% Generate Microstructure
 catalyst_vol_fraction = (1 - bridge_fraction) * catalyst_tot_vol_fraction;
 bridge_vol_fraction = catalyst_tot_vol_fraction - catalyst_vol_fraction;
 
