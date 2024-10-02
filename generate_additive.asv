@@ -1,0 +1,120 @@
+function Microstructure = generate_additive(Microstructure_initial, background_id, additive_id, target_volume_fraction, minimum_dist, randomize_level, erosiondilatation_depth)
+    % Prepare parameters
+    Microstructure = Microstructure_initial; % Reset
+
+    time_cpu_start = cputime; % CPU start
+    tic; % Stopwatch start
+
+    binary_phase = zeros(size(Microstructure)); % Initialization
+    binary_phase(Microstructure == background_id) = 1;
+    distance_bnd2bnd = Function_particle_size_CPSD_Algorithm(binary_phase); % Calculate distance from boundary to boundary
+
+    distance_bnd2bnd(distance_bnd2bnd == 0) = 9e9; % Remove 0 (background) from the potential additive location
+    distance_bnd2bnd(distance_bnd2bnd <= minimum_dist * sqrt(3)) = 9e9; % Remove small features from the potential additive location
+
+    ntot = numel(Microstructure);
+    current_additive_volumefraction = 0; % Initialize
+    increment = 1;
+    iter = 0;
+    d = 0; % Initialize
+    
+    max_iterations = 1000; % Preallocate for a reasonable maximum number of iterations
+    progress = zeros(max_iterations, 1); % Preallocate progress array
+
+    while current_additive_volumefraction < target_volume_fraction
+        d = d + increment; % Increment distance
+        iter = iter + 1;
+        if d > minimum_dist * sqrt(3)
+            potential_additives = distance_bnd2bnd <= d; % Select all voxels that could be assigned to additive
+            n = sum(potential_additives(:)); % How many of them?
+            if n > 0 % At least one
+                if randomize_level == 0
+                    if n / ntot <= target_volume_fraction - current_additive_volumefraction % All potential voxel are not enough to match target volume fraction
+                        Microstructure(potential_additives) = additive_id;
+                    else % Randomize among possible location is mandatory not to overshoot the target volume fraction
+                        [L, ncluster] = bwlabeln(potential_additives, 18); % Identify cluster among these potential locations
+                        cluster_possibility = 1:ncluster;
+                        while current_additive_volumefraction <= target_volume_fraction
+                            cluster_choice = randi(length(cluster_possibility)); % Random selection of cluster
+                            Microstructure(L == cluster_possibility(cluster_choice)) = additive_id;
+                            current_additive_volumefraction = sum(Microstructure(:) == additive_id) / ntot; % Update current volume fraction
+                            cluster_possibility(cluster_choice) = []; % Avoid re-assignment
+                        end
+                    end
+                else % Use a portion of them, per cluster randomly chosen
+                    [L, ncluster] = bwlabeln(potential_additives, 18); % Identify cluster among these potential locations
+                    cluster_possibility = 1:ncluster;
+                    volume_increment = 0; % Initialize
+                    while volume_increment <= (1 - randomize_level) * n
+                        cluster_choice = randi(length(cluster_possibility)); % Random selection of cluster
+                        loc = L == cluster_possibility(cluster_choice);
+                        Microstructure(loc) = additive_id;
+                        volume_increment = volume_increment + sum(loc(:));
+                        cluster_possibility(cluster_choice) = []; % Avoid re-assignment
+                    end
+                end
+            end
+        end
+        distance_bnd2bnd(Microstructure == additive_id) = 9e9; % Remove already assigned additive from the potential additive new location
+        current_additive_volumefraction = sum(Microstructure(:) == additive_id) / ntot; % Update current volume fraction
+
+        progress(iter) = current_additive_volumefraction;
+        if iter > 10 && length(unique(progress(iter-4:iter))) == 1
+            break
+        end
+    end
+
+    if erosiondilatation_depth > 0 % Optional step
+        binary_phase = zeros(size(Microstructure)); % Initialization
+        binary_phase(Microstructure == additive_id) = 1;
+        distance_bnd2bnd = Function_particle_size_CPSD_Algorithm(binary_phase); % Calculate distance from boundary to boundary
+        distance_bnd2bnd(distance_bnd2bnd == 0) = 9e9; % Remove 0 (background) from the potential additive location
+        Microstructure(distance_bnd2bnd < (erosiondilatation_depth * sqrt(3) + 0.0001)) = background_id;
+    end
+
+    if minimum_dist > 0
+        binary_phase = zeros(size(Microstructure)); % Initialization
+        binary_phase(Microstructure == background_id) = 1;
+        distance_bnd2bnd = Function_particle_size_CPSD_Algorithm(binary_phase); % Calculate distance from boundary to boundary
+        distance_bnd2bnd(distance_bnd2bnd == 0) = 9e9; % Remove 0 (background) from the potential additive location
+        Microstructure(distance_bnd2bnd < minimum_dist * sqrt(3) + 0.0001) = additive_id;
+    end
+
+    delta = round(sum(Microstructure(:) == additive_id) - numel(Microstructure) * target_volume_fraction);
+    erosion_cluster = true;
+    while delta > 0
+        binary_phase = zeros(size(Microstructure)); % Create binary matrix
+        if ~erosion_cluster
+            binary_phase(Microstructure == background_id) = 1;
+            distance_map = bwdist(binary_phase, 'chessboard'); % Distance map
+            distance_map(Microstructure ~= additive_id) = 2; % Consider only additive
+            idx = find(distance_map < 2);
+            if length(idx) <= delta
+                Microstructure(idx) = background_id;
+            else
+                tmp = randi(length(idx), delta, 1);
+                Microstructure(idx(tmp)) = background_id;
+            end
+        else
+            binary_phase(Microstructure == additive_id) = 1;
+            [L, ~] = bwlabeln(binary_phase, 18);
+            [C, ~, ic] = unique(L);
+            a_counts = accumarray(ic, 1);
+            size_cluster = [C, a_counts];
+            size_cluster = sortrows(size_cluster, 2); % Sort in ascending order
+            while size_cluster(1, 2) < delta && delta > 0
+                Microstructure(L == size_cluster(1, 1)) = background_id; % Smallest cluster is removed
+                delta = round(sum(Microstructure(:) == additive_id) - numel(Microstructure) * target_volume_fraction);
+                size_cluster(1, :) = []; % Smallest cluster is removed from the list
+            end
+            erosion_cluster = false; % Switch to voxel erosion
+        end
+        delta = round(sum(Microstructure(:) == additive_id) - numel(Microstructure) * target_volume_fraction);
+    end
+
+    time_cpu_elapsed = cputime - time_cpu_start; % CPU elapsed time
+    time_stopwatch_elapsed = toc; % Stopwatch elapsed time
+
+    disp(['Stopwatch time: ', num2str(time_stopwatch_elapsed, '%1.1f'), 's']);
+    disp(['CPU time: ', num2str(time_cpu_elapsed, '%1.1f'), 's']);
+end
