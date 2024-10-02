@@ -1,9 +1,8 @@
-%% Define file paths and parameters
-csv_filepath = 'C:\Users\gwosiak\Documents\MATLAB\Artificial Microstructures for PEM\input examples\size_distribution.csv'; % input file for particle size distribution
-inputs_filepath = 'C:\Users\gwosiak\Documents\MATLAB\Artificial Microstructures for PEM\input examples\Inputs.mat'; % Initial disconnected particles input file from MATBOX
+csv_filepath = '/home/baitaca/Documents/MATLAB/Artificial_microstructure_for_PEM-main/input examples/size_distribution.csv';
+inputs_filepath = '/home/baitaca/Documents/MATLAB/Artificial_microstructure_for_PEM-main/input examples/Inputs.mat';
 
 voxel_size = 10; % nm
-savefolder = 'C:\Users\gwosiak\Documents\Matbox_test\test 5\'; 
+savefolder = '/home/baitaca/Documents/MATLAB/microstructure_test2/';
 domain_size = [200, 200, 150]; % W x L x H in voxels
 catalyst_tot_vol_fraction = 0.11; % From ink composition
 bridge_fraction = 0.5; % (values from 0 to 1) Ajusts essentially the bridge volume fraction of the catalyst phase, higher value means higher connectivity 
@@ -13,7 +12,7 @@ save_progression = true;
 save_verification = true;
 maxtime = 999999; 
 refresheachs = 20;
-
+run_number=1;
 %% Generate Microstructure
 catalyst_vol_fraction = (1 - bridge_fraction) * catalyst_tot_vol_fraction;
 bridge_vol_fraction = catalyst_tot_vol_fraction - catalyst_vol_fraction;
@@ -95,8 +94,8 @@ colors = [
     255 157 27]/255; % Orange for phase 2
 
 % Display the 3D volume
-viewer = viewer3d('BackgroundColor', [0.9 0.9 0.9], 'GradientColor', [0.75 0.75 0.75], 'Lighting', 'on', 'BackgroundGradient', 'on');
-volshow(volumeData, 'Colormap', colors, 'Parent', viewer);
+%viewer = viewer3d('BackgroundColor', [0.9 0.9 0.9], 'GradientColor', [0.75 0.75 0.75], 'Lighting', 'on', 'BackgroundGradient', 'on');
+%volshow(volumeData);
 
 % Save the final structure as 8-bit .tif
 final_structure_8bit = uint8(255 * (Microstructure_bridge_jointed_ionomer / max(Microstructure_bridge_jointed_ionomer(:))));

@@ -67,7 +67,6 @@ function [inputs, microstructure3D] = process_particle_distribution(csv_filepath
     inputs.phase.volumefraction.along_3rd_axis = volumefraction_along_3rd_axis;
 
     input_table = interpolated_results';
-
     % Convert size(nm) to voxels
     input_table(1,:) = input_table(1,:) ./ voxel_size;
     input_table(2,:) = input_table(2,:);
