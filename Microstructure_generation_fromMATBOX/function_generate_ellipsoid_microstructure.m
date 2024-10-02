@@ -790,7 +790,7 @@ size_ellipsoid = size(binary_ellipsoid);
 if numel(size_ellipsoid) < 3
     error('size_ellipsoid does not contain enough dimensions.');
 end
-disp(['size_ellipsoid dimensions: ', num2str(size(size_ellipsoid))]);
+%disp(['size_ellipsoid dimensions: ', num2str(size(size_ellipsoid))]);
 
 % Assuming z_center is derived from a random index or calculated position,
 % ensure it is within the valid range:
@@ -808,28 +808,10 @@ disp(['size_ellipsoid dimensions: ', num2str(size(size_ellipsoid))]);
 % else
 %     error('z_center is out of bounds for the current phase volumefraction array.');
 % end
-disp(['z_center calculated as: ', num2str(z_center)]);
-disp(['Size of volumefraction array: ', num2str(size(phase(current_phase).volumefraction.along_3rd_axis_allslices))]);
+%disp(['z_center calculated as: ', num2str(z_center)]);
+%disp(['Size of volumefraction array: ', num2str(size(phase(current_phase).volumefraction.along_3rd_axis_allslices))]);
 
 
-% Calculate bounds safely within a single function call for each dimension
-[x_min, x_max] = safe_bounds(x_center - floor(size_ellipsoid(1)/2), x_center + floor(size_ellipsoid(1)/2), domain_size(1));
-[y_min, y_max] = safe_bounds(y_center - floor(size_ellipsoid(2)/2), y_center + floor(size_ellipsoid(2)/2), domain_size(2));
-disp(['Pre-check: z_center = ', num2str(z_center), ', size_ellipsoid(3) = ', num2str(size_ellipsoid(3)), ', domain_size(3) = ', num2str(domain_size(3))]);
-assert(isscalar(z_center) && isscalar(size_ellipsoid(3)) && isscalar(domain_size(3)), 'Variables must be scalars');
-disp('Assertion passed without error');
-
-                    % fprintf('z_center: %d, size_ellipsoid(3): %d, domain_size(3): %d\n', z_center, size_ellipsoid(3), domain_size(3));
-[z_min, z_max] = safe_bounds(z_center - floor(size_ellipsoid(3)/2), z_center + floor(size_ellipsoid(3)/2), domain_size(3));
-if z_max > size(microstructure3D.phase, 3) % Replace 'yourArray' with the actual array name
-    fprintf('Adjusting z_max from %d to %d\n', z_max, size(microstructure3D.phase, 3));
-    z_max = size(microstructure3D.phase, 3);
-end
-
-if z_min < 1
-    fprintf('Adjusting z_min from %d to 1\n', z_min);
-    z_min = 1;
-end
 
 
 
