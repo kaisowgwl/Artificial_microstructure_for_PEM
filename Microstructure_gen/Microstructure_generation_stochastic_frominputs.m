@@ -4,9 +4,10 @@ function [] = Microstructure_generation_stochastic_frominputs(inputs, run_number
 % Then, please load this file: inputs=load('<your path>\Inputs.mat');
 % - Default use, no scaling: Microstructure_generation_stochastic_frominputs(inputs, run_number, savefolder,save_progression, save_verification)
 %   run_number = 2 % How many generation (for reproducibility)
-%   savefolder = <where you want to save>. Path must end with '\'.
+%   savefolder = <where you want to save>. Path must end with
+%   '\'.ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 %   save_progression = true; % true of false
-%   save_verification = true; % true of false
+%   save_verification = true; % true of fssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssalse
 % - With scaling: Microstructure_generation_stochastic_frominputs(inputs, run_number, savefolder, save_progression, save_verification, scaling_factor, scaling_parameters)
 %   Set run_number, savefolder,  save_progression and save_verification as done above, then:
 %   scaling_factor = 2 % float, >0 (>1 upscaling, <1 downscaling)
@@ -36,7 +37,9 @@ for k_run = 1:1:run_number
     fprintf([outcome '\n']);
 
     if strcmp(outcome,'Success !')
-        save([savefolder 'Additionalinfo_run_' num2str(k_run) '.mat'],'microstructure3D','-mat');
+      %  save([savefolder 'Additionalinfo_run_' num2str(k_run) '.mat'],'microstructure3D','-mat');
+        save([savefolder 'Additionalinfo_run_' num2str(k_run) '.mat'],'microstructure3D','-v7.3');
+
         save([savefolder 'Additionalinfo_particle_run_' num2str(k_run) '.mat'],'particle_data','-mat');
         function_save_tif( uint8(microstructure3D.phase), [savefolder 'Phaselabel_run_' num2str(k_run) '.tif']);
         function_save_tif( uint16(microstructure3D.particle_id), [savefolder 'Particlelabel_run_' num2str(k_run) '.tif']);
